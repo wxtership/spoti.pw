@@ -12,9 +12,11 @@
 //     PlayerFooter.x     share gone, lyrics, Connect and queue as one row of three glyphs
 //     DJPlayer.x         the AI DJ's player (its own units): skip glyphs, a four glyph footer row, over the shared
 //                        play glyph, lowered row and Connect of PlayerControls.x and PlayerFooter.x
-//     PlayerCards.x      every card under the player collapsed, so the list closes up
+//     PlayerCards.x      every card under the player collapsed, so the list closes up -- except the album's
+//                        editor-note card, kept when Album notes is on (SGRKeyPlayerAlbumNotes)
 //     PlayerScroll.x     the list held at its top, so the player is one screen and cannot be scrolled up,
-//                        and its pull held off while the progress bar is scrubbed
+//                        and its pull held off while the progress bar is scrubbed -- the hold lifts when the
+//                        editor-note card is below the player, so it can be scrolled down to
 //     PlayerLyrics.x     the lyrics in the player: the cover as a thumbnail, the title up beside it
 //     PlayerGestures.x   the gestures' hookup
 //     PlayerMorph.x      the open and close grown out of the now playing bar's card, the cover flown
@@ -132,6 +134,15 @@ void SGRPlayerLandscapeLinesChanged(void);
 // Under Animated, a song no source has a clip for shows its own cover full screen, the way a clip is drawn, rather
 // than in its box over Fluid (PlayerMotion.x). On until switched off.
 #define SGRKeyPlayerFullCover @"spotifyglass.redesign.player.fullCover"
+
+// The playing song's album carries the editors' notes on a card below the player: Spotify's own editor-note
+// NPV card (behind an experiment, forced on in PlayerField.x), the one card PlayerCards.x keeps instead of
+// collapsing and PlayerScroll.x lets the player scroll down to. On until switched off. An album without
+// notes shows nothing. The native look is untouched; this is the redesign's locked one-screen player only.
+#define SGRKeyPlayerAlbumNotes @"spotifyglass.redesign.player.albumNotes"
+// Whether `content` (a card cell's content view, cell.subviews.firstObject) is Spotify's editor-note card:
+// PlayerCards.x owns the match, PlayerScroll.x asks it so the clamp lets that one card through.
+BOOL SGRPlayerContentIsEditorNote(UIView *content);
 
 // The animated artwork follows the lyrics: blurred behind them (PlayerMotion.x).
 void SGRPlayerMotionLyricsChanged(void);

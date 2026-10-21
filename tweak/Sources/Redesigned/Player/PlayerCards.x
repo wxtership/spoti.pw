@@ -32,12 +32,33 @@ static BOOL isPlayerCard(UIView *content) {
     return player;
 }
 
+// Spotify's editor-note card for the playing song's album (Contribution_NPVCardElementKit's
+// EditorNoteNPVCardElementUI, forced in behind its experiment by PlayerField.x). It is the one card kept
+// below the player: its root, or a view just inside it, names EditorNote. `content` is the cell's content
+// view (the NowPlaying_ScrollAPI view), as isPlayerCard() takes it.
+BOOL SGRPlayerContentIsEditorNote(UIView *content) {
+    if (!content || !isPlayerCard(content)) return NO;
+    UIView *root = content.subviews.firstObject.subviews.firstObject;
+    if (!root) return NO;
+    if ([NSStringFromClass(object_getClass(root)) containsString:@"EditorNote"]) return YES;
+    for (UIView *v in root.subviews)
+        if ([NSStringFromClass(object_getClass(v)) containsString:@"EditorNote"]) return YES;
+    return NO;
+}
+
 %hook _TtC12Element_List18CollectionViewCell
 - (UICollectionViewLayoutAttributes *)preferredLayoutAttributesFittingAttributes:(UICollectionViewLayoutAttributes *)attributes {
     UICollectionViewLayoutAttributes *result = %orig;
     UIView *cell = (UIView *)self;
     UIView *content = cell.subviews.firstObject;
     if (!content || !isPlayerCard(content)) return result;
+    // The one card kept: the album's editors' notes, below the player, when its switch is on (Player.h).
+    // PlayerScroll.x lets the player scroll down to it; everything else still collapses to nothing.
+    if (SGEnabled(SGRKeyPlayerAlbumNotes) && SGRPlayerContentIsEditorNote(content)) {
+        static dispatch_once_t once;
+        dispatch_once(&once, ^{ SGLog(@"redesign player: editor-note card kept below the player"); });
+        return result;
+    }
     result.size = CGSizeMake(result.size.width, 0);
     cell.clipsToBounds = YES;
 

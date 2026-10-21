@@ -213,6 +213,11 @@ static SGRPlayerCoverWatcher *sg_coverWatcher;
         @"ios-feature-nowplaying.sheet_style_npv": @YES,
         // Art around the play disc would sit under a bare glyph.
         @"ios-feature-nowplaying-elements.mixing_play_button": @NO,
+        // The editors' notes card below the player: Spotify's own, behind an experiment. Forcing it only
+        // builds the card; PlayerCards.x keeps it and PlayerScroll.x reaches it when SGRKeyPlayerAlbumNotes
+        // is on, and an album with no notes still builds nothing.
+        @"ios-contribution-featureproperties.enable_editorial_notes": @YES,
+        @"ios-contribution-featureproperties.editor_notes_npv_card_experiment_exposure": @YES,
     } mutableCopy];
     for (NSString *egg in @[@"ariana_petal_play_button_easter_egg", @"attack_on_titan_easter_egg_enabled", @"barbie_easter_egg_enabled",
                             @"black_panther_easter_egg_enabled", @"demogorgon_easter_egg", @"harry_potter_play_button_surround_easter_egg",

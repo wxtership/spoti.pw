@@ -8,8 +8,22 @@
 // it lets go.
 #import "Core/SGCore.h"
 #import "Redesigned/Kit/SGRKit.h"
+#import "Player.h"
 
 static NSString *const kListIdentifier = @"scrolling_npv_collection_view_accessibility_identifier";
+
+// The album's editors' notes are kept as a card below the player (PlayerCards.x); when one is laid out and
+// has height, the player is let scroll down to it instead of being held at the top. Every other card is
+// still collapsed to nothing, so the only thing below the player to reach is the note. A cheap scan of the
+// list's own cells, shallow per cell; the pull runs only while a finger is down.
+static BOOL hasEditorNote(UIScrollView *list) {
+    if (!SGEnabled(SGRKeyPlayerAlbumNotes)) return NO;
+    for (UIView *cell in list.subviews) {
+        if (cell.bounds.size.height <= 1) continue;
+        if (SGRPlayerContentIsEditorNote(cell.subviews.firstObject)) return YES;
+    }
+    return NO;
+}
 
 static __weak UIScrollView *sg_loggedList;
 
@@ -23,6 +37,7 @@ static void hideTopEdge(UIScrollView *list) {
 
 static void holdAtTop(UIScrollView *list) {
     if (![list.accessibilityIdentifier isEqualToString:kListIdentifier]) return;
+    if (hasEditorNote(list)) return;   // the player scrolls down to the album's notes; nothing else has height
     CGFloat top = -list.adjustedContentInset.top;
     CGPoint offset = list.contentOffset;
     if (offset.y <= top) return;
